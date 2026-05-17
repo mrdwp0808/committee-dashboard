@@ -8,6 +8,11 @@ Papa.parse("dashboard.csv", {
     header: true,
     skipEmptyLines: true,
     delimiter: ";",
+    encoding: "UTF-8",
+    transformHeader: function(header) {
+        // Hapus BOM character dan whitespace dari nama kolom
+        return header.replace(/^\uFEFF/, "").trim();
+    },
     complete: function(results) {
         globalData = results.data;
         filteredData = [...globalData];
