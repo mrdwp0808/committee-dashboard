@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Dashboard Monitoring</title>
+    <title>Enterprise Procurement Dashboard</title>
 
-    <!-- Font -->
+    <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- PapaParse -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-    <!-- Chart.js -->
+    <!-- ChartJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -26,13 +28,24 @@
 
     <div class="container">
 
+        <!-- TOPBAR -->
         <div class="topbar">
+
             <div>
-                <h1>Dashboard Monitoring</h1>
-                <p>Operational Monitoring System</p>
+                <h1>Procurement Monitoring Dashboard</h1>
+                <p>Enterprise Operational Monitoring System</p>
             </div>
 
-            <button id="darkModeBtn">🌙 Dark Mode</button>
+            <div class="topbar-right">
+
+                <input type="text" id="searchInput" placeholder="Search anything...">
+
+                <button id="darkModeBtn">
+                    🌙 Dark Mode
+                </button>
+
+            </div>
+
         </div>
 
         <!-- KPI CARDS -->
@@ -60,6 +73,73 @@
 
         </div>
 
-        <!-- FILTER -->
-        <div class="filter-container">
+        <!-- CHART -->
+        <div class="chart-section">
+
+            <div class="chart-card">
+
+                <div class="chart-title">
+                    Procurement Status Summary
+                </div>
+
+                <canvas id="statusChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-section">
+
+            <div class="table-header">
+
+                <h2>Procurement Monitoring Table</h2>
+
+                <div class="table-info">
+                    Showing all procurement data
+                </div>
+
+            </div>
+
+            <div class="table-container">
+
+                <table id="tableData">
+
+                    <thead></thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- DETAIL MODAL -->
+    <div class="modal" id="detailModal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2>Detail Information</h2>
+
+                <span class="close-btn" id="closeModal">
+                    &times;
+                </span>
+
+            </div>
+
+            <div class="modal-body" id="modalBody"></div>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
 </html>
