@@ -105,8 +105,9 @@ button{
     margin-bottom:20px;
 }
 
-canvas{
-    max-height:350px;
+#statusChart{
+    width:100% !important;
+    height:350px !important;
 }
 
 /* TABLE */
