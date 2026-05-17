@@ -1,4 +1,5 @@
 let globalData = [];
+let filteredData = [];
 let statusChart;
 
 // LOAD CSV
@@ -13,14 +14,17 @@ Papa.parse("dashboard.csv", {
     complete: function(results){
 
         globalData = results.data;
+        filteredData = [...globalData];
 
-        renderTable(globalData);
-        renderKPI(globalData);
-        renderChart(globalData);
+        renderTable(filteredData);
+        renderKPI(filteredData);
+        renderChart(filteredData);
+        populateFilters(globalData);
 
     }
 
 });
+
 // TABLE
 
 function renderTable(data){
@@ -28,7 +32,18 @@ function renderTable(data){
     const tableHead = document.querySelector("#tableData thead");
     const tableBody = document.querySelector("#tableData tbody");
 
-    if(data.length === 0) return;
+    if(data.length === 0){
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%">
+                    No Data Found
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
 
     const headers = Object.keys(data[0]);
 
@@ -56,33 +71,47 @@ function renderTable(data){
 
         headers.forEach(header => {
 
-            let value = row[header];
+            let value = row[header] || "-";
 
-            // STATUS BADGE
+            // STATUS / VOTE BADGE
 
-            if(header.toUpperCase().includes("STATUS")){
+            if(
+                header.toUpperCase().includes("STATUS")
+                ||
+                header.toUpperCase().includes("VOTE")
+            ){
 
-                let badgeClass = "";
+                let badgeClass = "badge badge-progress";
 
-                if(value === "OPEN"){
+                const upperValue = String(value).toUpperCase();
+
+                if(
+                    upperValue.includes("OPEN")
+                    ||
+                    upperValue.includes("HOLD")
+                ){
                     badgeClass = "badge badge-open";
                 }
-                else if(value === "DONE"){
+
+                else if(
+                    upperValue.includes("DONE")
+                    ||
+                    upperValue.includes("CONFIRMED")
+                ){
                     badgeClass = "badge badge-done";
-                }
-                else{
-                    badgeClass = "badge badge-progress";
                 }
 
                 value = `<span class="${badgeClass}">${value}</span>`;
             }
 
-            // LINK BUTTON
+            // LINK
 
             else if(
+
                 header.toUpperCase().includes("LINK")
                 ||
                 String(value).includes("http")
+
             ){
 
                 value = `
@@ -110,20 +139,26 @@ function renderKPI(data){
 
     document.getElementById("totalData").innerText = data.length;
 
-    const open = data.filter(x =>
-        String(x.STATUS).toUpperCase() === "OPEN"
+    const confirmed = data.filter(x =>
+
+        String(x.VOTE || "")
+        .toUpperCase()
+        .includes("CONFIRMED")
+
     ).length;
 
-    const done = data.filter(x =>
-        String(x.STATUS).toUpperCase() === "DONE"
+    const hold = data.filter(x =>
+
+        String(x.VOTE || "")
+        .toUpperCase()
+        .includes("HOLD")
+
     ).length;
 
-    const progress = data.filter(x =>
-        String(x.STATUS).toUpperCase() === "PROGRESS"
-    ).length;
+    const progress = data.length - confirmed - hold;
 
-    document.getElementById("openCount").innerText = open;
-    document.getElementById("doneCount").innerText = done;
+    document.getElementById("openCount").innerText = hold;
+    document.getElementById("doneCount").innerText = confirmed;
     document.getElementById("progressCount").innerText = progress;
 
 }
@@ -132,19 +167,31 @@ function renderKPI(data){
 
 function renderChart(data){
 
-    const open = data.filter(x =>
-        String(x.STATUS).toUpperCase() === "OPEN"
+    const confirmed = data.filter(x =>
+
+        String(x.VOTE || "")
+        .toUpperCase()
+        .includes("CONFIRMED")
+
     ).length;
 
-    const done = data.filter(x =>
-        String(x.STATUS).toUpperCase() === "DONE"
+    const hold = data.filter(x =>
+
+        String(x.VOTE || "")
+        .toUpperCase()
+        .includes("HOLD")
+
     ).length;
 
-    const progress = data.filter(x =>
-        String(x.STATUS).toUpperCase() === "PROGRESS"
-    ).length;
+    const progress = data.length - confirmed - hold;
 
     const ctx = document.getElementById("statusChart");
+
+    // DESTROY OLD CHART
+
+    if(statusChart){
+        statusChart.destroy();
+    }
 
     statusChart = new Chart(ctx, {
 
@@ -152,13 +199,13 @@ function renderChart(data){
 
         data: {
 
-            labels: ["OPEN", "DONE", "PROGRESS"],
+            labels: ["CONFIRMED", "HOLD", "PROGRESS"],
 
             datasets: [{
 
-                label: "Total Status",
+                label: "Total Procurement",
 
-                data: [open, done, progress],
+                data: [confirmed, hold, progress],
 
                 borderWidth: 1
 
@@ -169,7 +216,6 @@ function renderChart(data){
         options: {
 
             responsive: true,
-
             maintainAspectRatio: true
 
         }
@@ -180,30 +226,165 @@ function renderChart(data){
 
 // SEARCH
 
-document.getElementById("searchInput").addEventListener("keyup", function(){
+document.getElementById("searchInput")
+.addEventListener("keyup", function(){
 
-    const keyword = this.value.toLowerCase();
+    applyFilters();
 
-    const filtered = globalData.filter(row => {
+});
 
-        return Object.values(row).some(value =>
+// FILTER DROPDOWN
 
-            String(value).toLowerCase().includes(keyword)
+function populateFilters(data){
 
+    const monthFilter = document.getElementById("monthFilter");
+    const yearFilter = document.getElementById("yearFilter");
+
+    const months = new Set();
+    const years = new Set();
+
+    data.forEach(row => {
+
+        const rawDate = row["TGL KOMITE"];
+
+        if(!rawDate) return;
+
+        const date = new Date(rawDate);
+
+        if(!isNaN(date)){
+
+            months.add(date.getMonth());
+            years.add(date.getFullYear());
+
+        }
+
+    });
+
+    const monthNames = [
+
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+
+    ];
+
+    [...months]
+    .sort((a,b)=>a-b)
+    .forEach(month => {
+
+        monthFilter.innerHTML += `
+
+            <option value="${month}">
+                ${monthNames[month]}
+            </option>
+
+        `;
+
+    });
+
+    [...years]
+    .sort()
+    .forEach(year => {
+
+        yearFilter.innerHTML += `
+
+            <option value="${year}">
+                ${year}
+            </option>
+
+        `;
+
+    });
+
+}
+
+// FILTER EVENT
+
+document.getElementById("monthFilter")
+.addEventListener("change", applyFilters);
+
+document.getElementById("yearFilter")
+.addEventListener("change", applyFilters);
+
+// APPLY FILTER
+
+function applyFilters(){
+
+    const keyword =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    const month =
+        document.getElementById("monthFilter")
+        .value;
+
+    const year =
+        document.getElementById("yearFilter")
+        .value;
+
+    filteredData = globalData.filter(row => {
+
+        // SEARCH
+
+        const matchKeyword = Object.values(row).some(value =>
+
+            String(value)
+            .toLowerCase()
+            .includes(keyword)
+
+        );
+
+        // DATE
+
+        const rawDate = row["TGL KOMITE"];
+
+        const date = new Date(rawDate);
+
+        if(isNaN(date)) return false;
+
+        const matchMonth =
+
+            month === ""
+            ||
+            date.getMonth() == month;
+
+        const matchYear =
+
+            year === ""
+            ||
+            date.getFullYear() == year;
+
+        return (
+            matchKeyword
+            &&
+            matchMonth
+            &&
+            matchYear
         );
 
     });
 
-    renderTable(filtered);
-    renderKPI(filtered);
+    renderTable(filteredData);
+    renderKPI(filteredData);
+    renderChart(filteredData);
 
-});
+}
 
 // DETAIL MODAL
 
 function showDetail(index){
 
-    const row = globalData[index];
+    const row = filteredData[index];
 
     const modal = document.getElementById("detailModal");
     const modalBody = document.getElementById("modalBody");
@@ -212,7 +393,7 @@ function showDetail(index){
 
     Object.keys(row).forEach(key => {
 
-        let value = row[key];
+        let value = row[key] || "-";
 
         // LINK
 
@@ -249,9 +430,11 @@ function showDetail(index){
 
 // CLOSE MODAL
 
-document.getElementById("closeModal").addEventListener("click", function(){
+document.getElementById("closeModal")
+.addEventListener("click", function(){
 
-    document.getElementById("detailModal").style.display = "none";
+    document.getElementById("detailModal")
+    .style.display = "none";
 
 });
 
@@ -259,7 +442,8 @@ document.getElementById("closeModal").addEventListener("click", function(){
 
 window.addEventListener("click", function(event){
 
-    const modal = document.getElementById("detailModal");
+    const modal =
+        document.getElementById("detailModal");
 
     if(event.target === modal){
 
@@ -271,7 +455,8 @@ window.addEventListener("click", function(event){
 
 // DARK MODE
 
-document.getElementById("darkModeBtn").addEventListener("click", function(){
+document.getElementById("darkModeBtn")
+.addEventListener("click", function(){
 
     document.body.classList.toggle("dark-mode");
 
