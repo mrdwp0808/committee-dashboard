@@ -8,6 +8,7 @@ Papa.parse("dashboard.csv", {
     download: true,
     header: true,
     skipEmptyLines: true,
+    delimiter: ";",
 
     complete: function(results){
 
@@ -20,7 +21,6 @@ Papa.parse("dashboard.csv", {
     }
 
 });
-
 // TABLE
 
 function renderTable(data){
