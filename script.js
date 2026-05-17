@@ -170,7 +170,7 @@ function renderChart(data){
 
             responsive: true,
 
-            maintainAspectRatio: false
+            maintainAspectRatio: true
 
         }
 
