@@ -4,23 +4,30 @@ let statusChart;
 
 // LOAD CSV
 Papa.parse("dashboard.csv", {
+
     download: true,
     header: true,
     skipEmptyLines: true,
-    delimiter: ";",
     encoding: "UTF-8",
+
     transformHeader: function(header) {
-        // Hapus BOM character dan whitespace dari nama kolom
         return header.replace(/^\uFEFF/, "").trim();
     },
+
     complete: function(results) {
+
+        console.log(results);
+
         globalData = results.data;
         filteredData = [...globalData];
+
         renderTable(filteredData);
         renderKPI(filteredData);
         renderChart(filteredData);
         populateFilters(globalData);
+
     }
+
 });
 
 // ── Helper: cari kolom tanggal secara fleksibel ──────────────────────────────
