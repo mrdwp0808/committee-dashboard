@@ -462,10 +462,3 @@ document.getElementById("darkModeBtn")
 
 });
 
-// AUTO REFRESH
-
-setInterval(() => {
-
-    location.reload();
-
-}, 60000);
