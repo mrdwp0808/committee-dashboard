@@ -1,1 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard Monitoring</title>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- PapaParse -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="topbar">
+            <div>
+                <h1>Dashboard Monitoring</h1>
+                <p>Operational Monitoring System</p>
+            </div>
+
+            <button id="darkModeBtn">🌙 Dark Mode</button>
+        </div>
+
+        <!-- KPI CARDS -->
+        <div class="cards">
+
+            <div class="card">
+                <h3>Total Data</h3>
+                <h2 id="totalData">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>OPEN</h3>
+                <h2 id="openCount">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>DONE</h3>
+                <h2 id="doneCount">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>PROGRESS</h3>
+                <h2 id="progressCount">0</h2>
+            </div>
+
+        </div>
+
+        <!-- FILTER -->
+        <div class="filter-container">
+</html>
