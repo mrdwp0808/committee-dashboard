@@ -16,8 +16,6 @@ Papa.parse("dashboard.csv", {
 
     complete: function(results) {
 
-        console.log(results);
-
         globalData = results.data;
         filteredData = [...globalData];
 
@@ -30,15 +28,15 @@ Papa.parse("dashboard.csv", {
 
 });
 
-// HELPER DATE
+// GET DATE COLUMN
 function getDateValue(row) {
 
     const candidates = [
         "TGL KOMITE",
         "TGL_KOMITE",
-        "DATE",
         "Tanggal",
-        "TANGGAL"
+        "TANGGAL",
+        "DATE"
     ];
 
     for (const key of candidates) {
@@ -48,20 +46,12 @@ function getDateValue(row) {
             &&
             row[key] !== ""
         ) {
-
             return row[key];
-
         }
 
     }
 
-    const found = Object.keys(row).find(k =>
-        k.toUpperCase().includes("TGL")
-        ||
-        k.toUpperCase().includes("DATE")
-    );
-
-    return found ? row[found] : null;
+    return null;
 
 }
 
@@ -70,12 +60,14 @@ function parseDate(rawDate) {
 
     if (!rawDate) return null;
 
+    // FORMAT 28-Oct-25
     let date = new Date(rawDate);
 
-    if (!isNaN(date)) return date;
+    if (!isNaN(date)) {
+        return date;
+    }
 
     // FORMAT DD/MM/YYYY
-
     const parts = rawDate.split("/");
 
     if (parts.length === 3) {
@@ -84,15 +76,11 @@ function parseDate(rawDate) {
             `${parts[2]}-${parts[1]}-${parts[0]}`
         );
 
-        if (!isNaN(date)) return date;
+        if (!isNaN(date)) {
+            return date;
+        }
 
     }
-
-    // FORMAT DD-MMM-YY
-
-    date = new Date(rawDate);
-
-    if (!isNaN(date)) return date;
 
     return null;
 
@@ -124,7 +112,6 @@ function renderTable(data) {
     const headers = Object.keys(data[0]);
 
     // HEADER
-
     let headHTML = "<tr>";
 
     headers.forEach(header => {
@@ -138,7 +125,6 @@ function renderTable(data) {
     tableHead.innerHTML = headHTML;
 
     // BODY
-
     let bodyHTML = "";
 
     data.forEach((row, index) => {
@@ -151,8 +137,7 @@ function renderTable(data) {
 
             let value = row[header] || "-";
 
-            // STATUS / VOTE BADGE
-
+            // BADGE
             if (
                 header.toUpperCase().includes("STATUS")
                 ||
@@ -196,18 +181,14 @@ function renderTable(data) {
             }
 
             // LINK
-
             else if (
-
                 header.toUpperCase().includes("LINK")
                 ||
                 String(value).includes("http")
-
             ) {
 
                 value = `
-                    <a href="${value}"
-                       target="_blank">
+                    <a href="${value}" target="_blank">
                         OPEN LINK
                     </a>
                 `;
@@ -261,27 +242,34 @@ function renderKPI(data) {
     .innerText = progress;
 
 }
+
 // CHART
 function renderChart(data) {
 
     const confirmed = data.filter(x =>
-        String(x.VOTE || "").toUpperCase().includes("CONFIRMED")
+        String(x.VOTE || "")
+        .toUpperCase()
+        .includes("CONFIRMED")
     ).length;
 
     const hold = data.filter(x =>
-        String(x.VOTE || "").toUpperCase().includes("HOLD")
+        String(x.VOTE || "")
+        .toUpperCase()
+        .includes("HOLD")
     ).length;
 
-    const progress = data.length - confirmed - hold;
+    const progress =
+        data.length - confirmed - hold;
 
-    const canvas = document.getElementById("statusChart");
+    const canvas =
+        document.getElementById("statusChart");
 
-    // DESTROY OLD CHART
     if (statusChart) {
         statusChart.destroy();
     }
 
-    const ctx = canvas.getContext("2d");
+    const ctx =
+        canvas.getContext("2d");
 
     statusChart = new Chart(ctx, {
 
@@ -289,13 +277,21 @@ function renderChart(data) {
 
         data: {
 
-            labels: ["CONFIRMED", "HOLD", "PROGRESS"],
+            labels: [
+                "CONFIRMED",
+                "HOLD",
+                "PROGRESS"
+            ],
 
             datasets: [{
 
                 label: "Total Procurement",
 
-                data: [confirmed, hold, progress],
+                data: [
+                    confirmed,
+                    hold,
+                    progress
+                ],
 
                 backgroundColor: [
                     "#22c55e",
@@ -303,8 +299,7 @@ function renderChart(data) {
                     "#f59e0b"
                 ],
 
-                borderRadius: 8,
-                borderWidth: 1
+                borderRadius: 8
 
             }]
 
@@ -315,10 +310,6 @@ function renderChart(data) {
             responsive: true,
 
             maintainAspectRatio: false,
-
-            animation: {
-                duration: 500
-            },
 
             plugins: {
 
@@ -403,7 +394,7 @@ function populateFilters(data) {
     });
 
     [...years]
-    .sort()
+    .sort((a,b)=>a-b)
     .forEach(year => {
 
         yearFilter.innerHTML += `
@@ -443,26 +434,23 @@ function applyFilters() {
     filteredData = globalData.filter(row => {
 
         // SEARCH
+        const matchKeyword =
+            Object.values(row).some(value =>
 
-        const matchKeyword = Object.values(row)
-        .some(value =>
+                String(value)
+                .toLowerCase()
+                .includes(keyword)
 
-            String(value)
-            .toLowerCase()
-            .includes(keyword)
-
-        );
+            );
 
         // DATE
-
         const rawDate =
             getDateValue(row);
 
         const date =
             parseDate(rawDate);
 
-        // kalau row tidak punya tanggal
-
+        // kalau tidak ada tanggal
         if (!date) {
 
             return (
@@ -480,7 +468,6 @@ function applyFilters() {
         }
 
         // MONTH
-
         const matchMonth =
 
             month === ""
@@ -488,7 +475,6 @@ function applyFilters() {
             date.getMonth() == month;
 
         // YEAR
-
         const matchYear =
 
             year === ""
@@ -496,10 +482,9 @@ function applyFilters() {
             date.getFullYear() == year;
 
         // START DATE
-
         let matchStart = true;
 
-        if(startDate){
+        if (startDate) {
 
             const start =
                 new Date(startDate);
@@ -510,10 +495,9 @@ function applyFilters() {
         }
 
         // END DATE
-
         let matchEnd = true;
 
-        if(endDate){
+        if (endDate) {
 
             const end =
                 new Date(endDate);
@@ -549,8 +533,7 @@ function applyFilters() {
 
 }
 
-// EVENT LISTENER
-
+// EVENT
 document.getElementById("searchInput")
 .addEventListener("keyup", applyFilters);
 
@@ -592,8 +575,7 @@ function showDetail(index) {
         ) {
 
             value = `
-                <a href="${value}"
-                   target="_blank">
+                <a href="${value}" target="_blank">
                     OPEN LINK
                 </a>
             `;
@@ -623,7 +605,6 @@ function showDetail(index) {
 }
 
 // CLOSE MODAL
-
 document.getElementById("closeModal")
 .addEventListener("click", () => {
 
@@ -633,13 +614,12 @@ document.getElementById("closeModal")
 });
 
 // CLICK OUTSIDE
-
 window.addEventListener("click", event => {
 
     const modal =
         document.getElementById("detailModal");
 
-    if(event.target === modal){
+    if (event.target === modal) {
 
         modal.style.display = "none";
 
@@ -648,7 +628,6 @@ window.addEventListener("click", event => {
 });
 
 // DARK MODE
-
 document.getElementById("darkModeBtn")
 .addEventListener("click", function(){
 
