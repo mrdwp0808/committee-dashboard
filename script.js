@@ -286,4 +286,4 @@ document.getElementById("darkModeBtn").addEventListener("click", function() {
 });
 
 // AUTO REFRESH
-setInterval(() => { location.reload(); }, 600000);
+setInterval(() => { location.reload(); }, 3600000);
