@@ -62,7 +62,19 @@ button{
 .card h2{font-size:34px;font-weight:700;}
 
 .chart-section{margin-bottom:30px;}
-.chart-card{background:white;padding:25px;border-radius:18px;box-shadow:0 4px 15px rgba(0,0,0,0.06);}
+.chart-card{
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.06);
+
+    height:450px;
+    position:relative;
+}
+#statusChart{
+    width:100% !important;
+    height:350px !important;
+}
 .chart-title{font-size:16px;font-weight:600;margin-bottom:20px;}
 
 .table-section{background:white;border-radius:18px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,0.06);}
