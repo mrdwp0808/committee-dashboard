@@ -285,5 +285,6 @@ document.getElementById("darkModeBtn").addEventListener("click", function() {
     this.textContent = document.body.classList.contains("dark-mode") ? "☀️ Light Mode" : "🌙 Dark Mode";
 });
 
-// AUTO REFRESH
-setInterval(() => { location.reload(); }, 3600000);
+<button onclick="location.reload()">
+    🔄 Refresh Data
+</button>
