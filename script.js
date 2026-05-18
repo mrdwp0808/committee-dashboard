@@ -261,59 +261,41 @@ function renderKPI(data) {
     .innerText = progress;
 
 }
-
 // CHART
 function renderChart(data) {
 
     const confirmed = data.filter(x =>
-
-        String(x.VOTE || "")
-        .toUpperCase()
-        .includes("CONFIRMED")
-
+        String(x.VOTE || "").toUpperCase().includes("CONFIRMED")
     ).length;
 
     const hold = data.filter(x =>
-
-        String(x.VOTE || "")
-        .toUpperCase()
-        .includes("HOLD")
-
+        String(x.VOTE || "").toUpperCase().includes("HOLD")
     ).length;
 
-    const progress =
-        data.length - confirmed - hold;
+    const progress = data.length - confirmed - hold;
 
-    const canvas =
-        document.getElementById("statusChart");
+    const canvas = document.getElementById("statusChart");
 
-    if(statusChart){
-
+    // DESTROY OLD CHART
+    if (statusChart) {
         statusChart.destroy();
-
     }
 
-    statusChart = new Chart(canvas, {
+    const ctx = canvas.getContext("2d");
+
+    statusChart = new Chart(ctx, {
 
         type: "bar",
 
         data: {
 
-            labels: [
-                "CONFIRMED",
-                "HOLD",
-                "PROGRESS"
-            ],
+            labels: ["CONFIRMED", "HOLD", "PROGRESS"],
 
             datasets: [{
 
                 label: "Total Procurement",
 
-                data: [
-                    confirmed,
-                    hold,
-                    progress
-                ],
+                data: [confirmed, hold, progress],
 
                 backgroundColor: [
                     "#22c55e",
@@ -321,7 +303,8 @@ function renderChart(data) {
                     "#f59e0b"
                 ],
 
-                borderRadius: 8
+                borderRadius: 8,
+                borderWidth: 1
 
             }]
 
@@ -333,12 +316,14 @@ function renderChart(data) {
 
             maintainAspectRatio: false,
 
+            animation: {
+                duration: 500
+            },
+
             plugins: {
 
                 legend: {
-
                     display: false
-
                 }
 
             },
@@ -346,9 +331,10 @@ function renderChart(data) {
             scales: {
 
                 y: {
-
-                    beginAtZero: true
-
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
                 }
 
             }
