@@ -203,6 +203,8 @@ function populateFilters(data) {
 
 document.getElementById("monthFilter").addEventListener("change", applyFilters);
 document.getElementById("yearFilter").addEventListener("change", applyFilters);
+document.getElementById("startDate").addEventListener("change", applyFilters);
+document.getElementById("endDate").addEventListener("change", applyFilters);
 
 function parseDate(rawDate) {
     if (!rawDate) return null;
@@ -219,31 +221,117 @@ function parseDate(rawDate) {
 
 // APPLY FILTER — fix: tidak lagi skip baris yang tanggalnya kosong saat filter tanggal kosong
 function applyFilters() {
-    const keyword = document.getElementById("searchInput").value.toLowerCase();
-    const month = document.getElementById("monthFilter").value;
-    const year = document.getElementById("yearFilter").value;
+
+    const keyword =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    const month =
+        document.getElementById("monthFilter")
+        .value;
+
+    const year =
+        document.getElementById("yearFilter")
+        .value;
+
+    const startDate =
+        document.getElementById("startDate")
+        .value;
+
+    const endDate =
+        document.getElementById("endDate")
+        .value;
 
     filteredData = globalData.filter(row => {
+
         // SEARCH
+
         const matchKeyword = Object.values(row).some(value =>
-            String(value).toLowerCase().includes(keyword)
+
+            String(value)
+            .toLowerCase()
+            .includes(keyword)
+
         );
 
-        // Jika filter bulan/tahun tidak dipilih, semua lolos
-        if (month === "" && year === "") {
-            return matchKeyword;
-        }
+        // DATE
 
         const rawDate = getDateValue(row);
         const date = parseDate(rawDate);
 
-        // Kalau ada filter tanggal tapi baris tidak punya tanggal → skip
-        if (!date) return false;
+        // kalau row tidak punya tanggal
 
-        const matchMonth = month === "" || date.getMonth() == month;
-        const matchYear = year === "" || date.getFullYear() == year;
+        if (!date) {
 
-        return matchKeyword && matchMonth && matchYear;
+            return (
+                month === ""
+                &&
+                year === ""
+                &&
+                startDate === ""
+                &&
+                endDate === ""
+                &&
+                matchKeyword
+            );
+
+        }
+
+        // MONTH
+
+        const matchMonth =
+
+            month === ""
+            ||
+            date.getMonth() == month;
+
+        // YEAR
+
+        const matchYear =
+
+            year === ""
+            ||
+            date.getFullYear() == year;
+
+        // DATE RANGE
+
+        let matchStart = true;
+        let matchEnd = true;
+
+        if(startDate){
+
+            matchStart =
+                date >= new Date(startDate);
+
+        }
+
+        if(endDate){
+
+            const end =
+                new Date(endDate);
+
+            end.setHours(23,59,59,999);
+
+            matchEnd =
+                date <= end;
+
+        }
+
+        return (
+
+            matchKeyword
+            &&
+            matchMonth
+            &&
+            matchYear
+            &&
+            matchStart
+            &&
+            matchEnd
+
+        );
+
     });
 
     renderTable(filteredData);
