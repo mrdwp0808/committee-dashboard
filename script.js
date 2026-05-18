@@ -305,33 +305,38 @@ function renderChart(data) {
 
         },
 
-        options: {
+       options: {
 
             responsive: true,
-
+        
             maintainAspectRatio: false,
-
+        
+            devicePixelRatio: window.devicePixelRatio || 2,
+        
+            animation: {
+                duration: 500
+            },
+        
             plugins: {
-
+        
                 legend: {
                     display: false
                 }
-
+        
             },
-
+        
             scales: {
-
+        
                 y: {
                     beginAtZero: true,
                     ticks: {
                         stepSize: 1
                     }
                 }
-
+        
             }
-
+        
         }
-
     });
 
 }
