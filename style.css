@@ -107,7 +107,7 @@ tr:hover{background:#f9fafb;cursor:pointer;}
 
 
 .modal{display:none;position:fixed;z-index:999;inset:0; background:rgba(15,23,42,0.78);backdrop-filter:blur(4px);}
-.modal-content{background:white;width:90%;max-width:1000px;margin:40px auto;border-radius:20px;overflow:hidden;max-height:85vh;display:flex;flex-direction:column;}
+.modal-content{background:#eef2f7;width:90%;max-width:1000px;margin:40px auto;border-radius:20px;overflow:hidden;max-height:85vh;display:flex;flex-direction:column;}
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid #e5e7eb;}
 .modal-body{padding:20px;overflow:auto;}
 .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
