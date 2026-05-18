@@ -309,7 +309,7 @@ function renderChart(data) {
 
             responsive: true,
 
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
 
             plugins: {
 
