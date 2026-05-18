@@ -311,8 +311,6 @@ function renderChart(data) {
         
             maintainAspectRatio: false,
         
-            devicePixelRatio: window.devicePixelRatio || 2,
-        
             animation: {
                 duration: 500
             },
